@@ -21,7 +21,7 @@ async def add_process_time_header(request: Request, call_next):
         except:
             until_now=[]
     with open("endpoints_data.json", "w", encoding="utf-8") as f:
-        until_now.append({"url": request.url,"method":request.method,"time":process_time})
+        until_now.append({"time":process_time})
         json.dump(until_now, f, ensure_ascii=False, indent=4)
     return response
 
