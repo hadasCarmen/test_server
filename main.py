@@ -1,9 +1,32 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import json
 from pydantic import BaseModel
-
+import time
 
 app=FastAPI()
+
+
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+
+    with open("endpoints_data.json", "r", encoding="utf-8") as f:
+        try:
+            until_now=json.load(f)
+        except:
+            until_now=[]
+    with open("endpoints_data.json", "w", encoding="utf-8") as f:
+        until_now.append({"url": request.url,"method":request.method,"time":process_time})
+        json.dump(until_now, f, ensure_ascii=False, indent=4)
+    return response
+
+
+
 
 abc=["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 @app.get("/test")
